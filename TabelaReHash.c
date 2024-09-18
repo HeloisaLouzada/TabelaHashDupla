@@ -4,8 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <windows.h>
 #include "Tab_HashDuplo.h"
+
+
 #define TAMANHO_NOME 100
+#define A 0.6180339887 
+
 
 //MANIPULAÇÃO DE ARQUIVO
 /*void gravarArquivo(Aluno* tabela, char* nomeArquivo, char *modo){
@@ -28,7 +33,7 @@
 }*/
 
 
-void carregarArquivo(Aluno* tabela, char* nomeArquivo, char *modo){
+void carregarArquivo(Aluno* tabela, char* nomeArquivo, char *modo, long tamanho){
     FILE* arq = fopen(nomeArquivo, modo);
     if (arq == NULL){
         printf("Erro ao abrir o arquivo.\n");
@@ -42,9 +47,9 @@ void carregarArquivo(Aluno* tabela, char* nomeArquivo, char *modo){
         nome[strcspn(nome, "\n")] = '\0';  
         
         if (fscanf(arq, "%I64d\n", &matricula) == 1){  
-            Aluno* aluno = pesquisar(tabela, matricula, metodoEscolhido);
+            Aluno* aluno = pesquisar(tabela, matricula, tamanho);
             if (aluno == NULL) { 
-                inserir(tabela, nome, matricula, metodoEscolhido);  
+                inserir(tabela, matricula, nome, tamanho);  
             }
         }    
     }
@@ -80,9 +85,9 @@ long quantidadeElementos(char *nomeArq){
 int escolherTamanho(){
     int opcao;
     printf("\nEscolha o tamanho do vetor Hash:\n");
-    printf("1) 100%% do tamanho da base de dados\n");
-    printf("2) 120%% do tamanho da base de dados\n");
-    printf("3) 150%% do tamanho da base de dados\n");
+    printf("1) 120%% do tamanho da base de dados\n");
+    printf("2) 150%% do tamanho da base de dados\n");
+    printf("3) 180%% do tamanho da base de dados\n");
     scanf("%d", &opcao);
 
     return opcao;
@@ -93,13 +98,13 @@ long calculoTamanho(int escolha, int baseDados){
     int tamanho;
     switch (escolha){
         case 1:
-            tamanho = baseDados;
+            tamanho = (baseDados * 120)/100;
             break;
         case 2:
-            tamanho = (baseDados * 120) / 100;
+            tamanho = (baseDados * 150) / 100;
             break;
         case 3:
-            tamanho = (baseDados * 150) / 100;
+            tamanho = (baseDados * 180) / 100;
             break;
         default:
             printf("Opção inválida, usando 100%% por padrão.\n");
@@ -124,24 +129,22 @@ long calculoTamanho(int escolha, int baseDados){
 
 void inicializarVetor(Aluno * tabela, long indice){
     while(indice > 0){
-        tabela[indice]->flag = 0;
+        tabela[indice].flag = 0;
         indice --;
     }
 }
 
 //FUNÇÕES HASH
-long calculoInicial(){
-    long indice = 0;
-
-    calculo;
-
-    return indice;
+long calculoInicial(long long int matricula, long tamanho){
+    double val = matricula * A;  
+    val = val - (long long int)val;      
+    return (long)(tamanho * val); 
 }
 
-long calculoConflito(){
+long calculoConflito(long long int matricula, long tamanho){
     long indice = 0;
 
-    calculo;
+    indice = 1 + calculoInicial(matricula, (tamanho-1));
 
     return indice;
 }
@@ -151,29 +154,38 @@ long hash(Aluno *tabela ,long long int matricula, long tamanho){
     long endereco = 0;
     endereco = calculoInicial(matricula, tamanho);
 
-    if ((tabela[endereco] -> flag) == 0) {
+    if ((tabela[endereco].flag) == 0) {
         return calculoInicial(matricula, tamanho);//sai 
     } else {
-        endereco = calculoConflito(matricula, tamanho);
-
-        if(tabela[endereco]-> flag) == 0){
-            long hash;
+        while((tabela[endereco].flag) != 0){
+            calculoConflito(matricula, tamanho);
         }
     }
 }
 
 
 //FUNÇÕES DO MENU
-Aluno* pesquisar(Aluno* tabela, long long int matricula){
-    long index = hash(tabela, matricula, tabela->tamanho);
-    Aluno* atual = tabela->tabelaAluno[index];
-    //while (de calcular até achar)
 
-    while (atual != NULL){
+inserir(Aluno* tabela, long long int matriculaAluno, char * nomeAluno, long tamanho){
+    long posicao = hash(tabela, matriculaAluno, tamanho);
+
+    tabela[posicao].flag = 0;
+    tabela[posicao].nome = nomeAluno;
+    tabela[posicao].matricula = matriculaAluno;
+
+}
+
+
+Aluno* pesquisar(Aluno** tabela, long long int matricula, long tamanho){
+    long index = hash(tabela, matricula, tamanho);
+    Aluno* atual = tabela[index];
+    
+    if (atual != NULL){
         if (atual->matricula == matricula) {
             return atual;
         }
-        atual = atual->prox;
+        else
+        printf("O valor não existe");
     }
 
     return NULL;
@@ -189,7 +201,7 @@ int main(){
     Aluno tabela[tamanhoVetor];
     inicializarVetor(tabela, tamanhoVetor);
 
-    carregarArquivos(tabela, "nomes_matriculas.txt", "rt");
+    carregarArquivos(tabela, "nomes_matriculas.txt", "rt", tamanhoVetor);
 
     return 0;
 }
