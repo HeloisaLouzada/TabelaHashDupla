@@ -107,8 +107,8 @@ long calculoTamanho(int escolha, int baseDados){
             tamanho = (baseDados * 180) / 100;
             break;
         default:
-            printf("Opção inválida, usando 100%% por padrão.\n");
-            tamanho = baseDados;
+            printf("Opção inválida, usando 120%% por padrão.\n");
+            tamanho = (baseDados * 120)/100;
     }
     
     int i = 0;
@@ -201,7 +201,7 @@ int main(){
     Aluno tabela[tamanhoVetor];
     inicializarVetor(tabela, tamanhoVetor);
 
-    carregarArquivos(tabela, "nomes_matriculas.txt", "rt", tamanhoVetor);
+    carregarArquivo(tabela, "nomes_matriculas.txt", "rt", tamanhoVetor);
 
     return 0;
 }
