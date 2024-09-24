@@ -7,7 +7,6 @@
 #include <windows.h>
 #include "Tab_HashDuplo.h"
 
-
 #define TAMANHO_NOME 100
 #define A 0.6180339887 
 
